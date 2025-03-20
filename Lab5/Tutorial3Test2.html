@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Custom Icons in Leaflet</title>
+
+    <!-- Load Leaflet CSS and JavaScript -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        /* Set the map size */
+        #map {
+            width: 100%;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Markers with Custom Icons</h1>
+    <div id="map"></div>
+
+    <script>
+        // Initialize the map centered on College Station
+        var map = L.map('map').setView([30.6133, -96.3450], 13);
+
+        // Add a basemap layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Define a custom icon
+        var customIcon = L.icon({
+    iconUrl: 'https://em-content.zobj.net/source/apple/391/grinning-face_1f600.png', 
+    iconSize: [35, 35], 
+    iconAnchor: [17, 35], 
+    popupAnchor: [0, -35]
+});
+
+        // Add a marker with the custom icon
+        L.marker([30.6133, -96.3450], {icon: customIcon}).addTo(map)
+            .bindPopup('This is my custom icon marker');
+
+        // Add another default marker for comparison
+        L.marker([30.6106, -96.3406]).addTo(map)
+            .bindPopup('This is the default marker.');
+
+    </script>
+</body>
+</html>

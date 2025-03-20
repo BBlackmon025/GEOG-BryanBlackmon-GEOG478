@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>College Station Map</title>
+    
+    <!-- Load Leaflet CSS and JavaScript -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        /* Set the map size */
+        #map {
+            width: 100%;
+            height: 700px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Map of Texas A&M University in College Station, Texas</h1>
+    <div id="map"></div>
+
+    <script>
+        // Initialize the map centered on Texas A&M
+        var map = L.map('map').setView([30.6159, -96.3400], 15);
+
+        // Add OpenStreetMap basemap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Define the red dot icon (from Wikimedia Commons)
+        var redDotIcon = L.icon({
+            iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/ec/RedDot.svg',
+            iconSize: [25, 25],  
+            iconAnchor: [12, 12],  
+            popupAnchor: [0, -12]  
+        });
+
+        // Add O&M Building Marker
+        L.marker([30.617721790793958, -96.33664138654832], {icon: redDotIcon}).addTo(map)
+            .bindPopup('<b>O&M Building</b><br>Home to Atmospheric Sciences and Geography.');
+
+        // Add Academic Building Marker
+        L.marker([30.615875159135342, -96.34074516639602], {icon: redDotIcon}).addTo(map)
+            .bindPopup('<b>Academic Building</b><br>A historic landmark at Texas A&M University.');
+
+        // Add a red circle around Kyle Field
+        L.circle([30.6106, -96.3406], {
+            color: 'red',
+            fillColor: '#f03',
+            fillOpacity: 0.5,
+            radius: 300  // Adjust the radius for visibility
+        }).addTo(map).bindPopup('<b>Kyle Field</b><br>Home of Texas A&M Football!');
+
+	// Coordinate event when clicking on map
+	map.on('click', function(e) {
+            var lat = e.latlng.lat.toFixed(5);
+            var lng = e.latlng.lng.toFixed(5);
+            L.popup()
+                .setLatLng(e.latlng)
+                .setContent(`<b>Coordinates:</b> ${lat}, ${lng}`)
+                .openOn(map);
+        });
+
+    </script>
+</body>
+</html>
