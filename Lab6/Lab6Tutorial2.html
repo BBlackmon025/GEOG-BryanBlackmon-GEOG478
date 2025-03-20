@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Interactive Choropleth Map</title>
+
+    <!-- Load Leaflet CSS and JavaScript -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        /* Set the map size */
+        #map {
+            width: 100%;
+            height: 600px;
+        }
+
+        .info {
+            padding: 6px 8px;
+            font: 14px Arial, sans-serif;
+            background: white;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Choropleth Map</h1>
+    <div id="map"></div>
+
+    <script>
+        // Initialize the map centered at Texas
+        var map = L.map('map').setView([31.0, -99.0], 6);
+
+        // Add a basemap layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Sample GeoJSON Data (for demonstration purposes)
+        var geojsonFeature = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Region A", "density": 200 },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [-99.5, 31.5], [-98.5, 31.5], [-98.5, 30.5], [-99.5, 30.5], [-99.5, 31.5]
+                        ]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Region B", "density": 800 },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [-100.5, 32.5], [-99.5, 32.5], [-99.5, 31.5], [-100.5, 31.5], [-100.5, 32.5]
+                        ]]
+                    }
+                }
+            ]
+        };
+
+        // Function to get color based on density value
+        function getColor(d) {
+            return d > 700 ? '#800026' :
+                   d > 500 ? '#BD0026' :
+                   d > 300 ? '#E31A1C' :
+                   d > 100 ? '#FC4E2A' :
+                             '#FFEDA0';
+        }
+
+        // Style function for the GeoJSON layer
+        function style(feature) {
+            return {
+                fillColor: getColor(feature.properties.density),
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
+            };
+        }
+
+        // Create the GeoJSON layer
+        var geojsonLayer = L.geoJSON(geojsonFeature, {
+            style: style
+        }).addTo(map);
+
+        // Add an information control
+        var info = L.control();
+
+        info.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info'); 
+            this.update();
+            return this._div;
+        };
+
+        info.update = function (props) {
+            this._div.innerHTML = '<h4>Population Density</h4>' +  
+                (props ? '<b>' + props.name + '</b><br />' + props.density + ' people per sq km'
+                : 'Hover over a region');
+        };
+
+        info.addTo(map);
+
+        // Highlight feature on hover
+        function highlightFeature(e) {
+            var layer = e.target;
+            layer.setStyle({
+                weight: 3,
+                color: '#666',
+                dashArray: '',
+                fillOpacity: 0.9
+            });
+
+            info.update(layer.feature.properties);
+        }
+
+        function resetHighlight(e) {
+            geojsonLayer.resetStyle(e.target);
+            info.update();
+        }
+
+        function zoomToFeature(e) {
+            map.fitBounds(e.target.getBounds());
+        }
+
+        function onEachFeature(feature, layer) {
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight,
+                click: zoomToFeature
+            });
+        }
+
+        // Apply interactivity
+        L.geoJSON(geojsonFeature, {
+            style: style,
+            onEachFeature: onEachFeature
+        }).addTo(map);
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Leaflet GeoJSON Example</title>
+
+    <!-- Load Leaflet CSS and JavaScript -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        /* Set the map size */
+        #map {
+            width: 100%;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Using GeoJSON with Leaflet</h1>
+    <div id="map"></div>
+
+    <script>
+        // Initialize the map centered at a sample location
+        var map = L.map('map').setView([30.6133, -96.3450], 13);
+
+        // Add a basemap layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Sample GeoJSON Data
+        var geojsonFeature = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-96.341, 30.615] // Longitude, Latitude (Reverse order!)
+            },
+            "properties": {
+                "name": "Sample Point",
+                "popupContent": "This is a sample GeoJSON point!"
+            }
+        };
+
+        // Function to style features
+        function styleFeature(feature) {
+            return {
+                color: "blue",
+                weight: 2,
+                fillOpacity: 0.5
+            };
+        }
+
+        // Adding GeoJSON layer to the map
+        L.geoJSON(geojsonFeature, {
+            style: styleFeature,
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && feature.properties.popupContent) {
+                    layer.bindPopup(feature.properties.popupContent);
+                }
+            }
+        }).addTo(map);
+    </script>
+</body>
+</html>

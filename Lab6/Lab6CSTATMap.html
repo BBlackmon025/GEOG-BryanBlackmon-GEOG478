@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>TAMU Campus Map</title>
+
+    <!-- Load Leaflet CSS and JavaScript -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        /* Set the map size */
+        #map {
+            width: 100%;
+            height: 800px;
+        }
+
+        .info {
+            padding: 6px 8px;
+            font: 14px Arial, sans-serif;
+            background: white;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Texas A&M University - Interactive Map</h1>
+    <div id="map"></div>
+
+    <!-- Load the TAMU Buildings GeoJSON Data -->
+    <script src="tamubuildings.js"></script> <!-- Load the local JS file -->
+
+    <script>
+        // Ensure the tamu variable exists
+        if (typeof tamu !== 'undefined') {
+            console.log("GeoJSON data loaded successfully:", tamu);
+
+            // Initialize the map centered on TAMU
+            var map = L.map('map').setView([30.615, -96.341], 16);
+
+            // Add OpenStreetMap basemap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Function to style the buildings
+            function style(feature) {
+                return {
+                    fillColor: "#800026",
+                    weight: 2,
+                    opacity: 1,
+                    color: 'white',
+                    fillOpacity: 0.7
+                };
+            }
+
+            // Function to highlight a building when hovered
+            function highlightFeature(e) {
+                var layer = e.target;
+                layer.setStyle({
+                    weight: 3,
+                    color: '#FFD700', // Highlight color (Gold)
+                    dashArray: '',
+                    fillOpacity: 0.9
+                });
+
+                info.update(layer.feature.properties); // Update info box
+            }
+
+            // Function to reset highlight when mouse leaves
+            function resetHighlight(e) {
+                geojsonLayer.resetStyle(e.target);
+                info.update();
+            }
+
+            // Function to zoom to the building when clicked
+            function zoomToFeature(e) {
+                map.fitBounds(e.target.getBounds());
+            }
+
+            // Function to bind event listeners to each building
+            function onEachFeature(feature, layer) {
+                layer.on({
+                    mouseover: highlightFeature,
+                    mouseout: resetHighlight,
+                    click: zoomToFeature
+                });
+            }
+
+            // Add the TAMU buildings GeoJSON layer
+            var geojsonLayer = L.geoJSON(tamu, {
+                style: style,
+                onEachFeature: onEachFeature
+            }).addTo(map);
+
+            // Add an info box for displaying building names on hover
+            var info = L.control();
+
+            info.onAdd = function (map) {
+                this._div = L.DomUtil.create('div', 'info');
+                this.update();
+                return this._div;
+            };
+
+            info.update = function (props) {
+                this._div.innerHTML = '<h4>Building Information</h4>' + (props ?
+                    `<b>${props.BldgName}</b><br />Abbreviation: ${props.BldgAbbr}`
+                    : 'Hover over a building');
+            };
+
+            info.addTo(map);
+
+        } else {
+            console.error("tamu data is not defined. Make sure 'tamubuildings.js' is loaded correctly.");
+        }
+    </script>
+</body>
+</html>
+
